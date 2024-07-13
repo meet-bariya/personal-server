@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  web:
+    image: nginx:1.25-alpine
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/www/data:/usr/share/nginx/data:rw
+      - ./site:/usr/share/nginx/html:rw
+      - ./conf.d:/etc/nginx/conf.d:ro
+      - ./dhparam:/etc/nginx/dhparam:ro
+      - ./.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - ./certbot/data:/usr/share/nginx/html/letsencrypt
+  certbot:
+    image: certbot/certbot:latest
+    command: 
+      - certonly --webroot --webroot-path=/usr/share/nginx/html/letsencrypt --email contact@meetbariya.co --agree-tos --no-eff-email -d meetbariya.co
+      # - certonly --webroot --webroot-path=/usr/share/nginx/html/letsencrypt --email contact@meetbariya.co --agree-tos --no-eff-email -d data.meetbariya.co
+
+    volumes:
+      - ./certbot/conf/:/etc/letsencrypt:rw
+      - ./certbot/logs/:/var/log/letsencrypt:rw
+      - ./certbot/data:/usr/share/nginx/html/letsencrypt:rw
